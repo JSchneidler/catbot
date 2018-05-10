@@ -30,7 +30,7 @@ def buildQueryObject(queryString):
 class StreamingHandler(server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*');
-        super(StreamingHandler, self).end_headers(self);
+        server.SimpleHTTPRequestHandler.end_headers(self);
 
     def do_GET(self):
         if self.path == '/stream':
