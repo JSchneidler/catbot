@@ -16,7 +16,7 @@ PAGE="""\
 <img src="/stream" width="640" height="480" />
 </body>
 </html>
-"""
+""";
 
 def buildQueryObject(queryString):
     queryObject = {};
@@ -29,28 +29,29 @@ def buildQueryObject(queryString):
 
 class StreamingHandler(server.SimpleHTTPRequestHandler):
     def do_GET(self):
+        self.send_header('Access-Control-Allow-Origin', '*');
         if self.path == '/stream':
-            self.send_response(200)
-            self.send_header('Age', 0)
-            self.send_header('Cache-Control', 'no-cache, private')
-            self.send_header('Pragma', 'no-cache')
-            self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
-            self.end_headers()
+            self.send_response(200);
+            self.send_header('Age', 0);
+            self.send_header('Cache-Control', 'no-cache, private');
+            self.send_header('Pragma', 'no-cache');
+            self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME');
+            self.end_headers();
             try:
                 while True:
                     with camera.output.condition:
-                        camera.output.condition.wait()
-                        frame = camera.output.frame
-                    self.wfile.write(b'--FRAME\r\n')
-                    self.send_header('Content-Type', 'image/jpeg')
-                    self.send_header('Content-Length', len(frame))
-                    self.end_headers()
-                    self.wfile.write(frame)
-                    self.wfile.write(b'\r\n')
+                        camera.output.condition.wait();
+                        frame = camera.output.frame;
+                    self.wfile.write(b'--FRAME\r\n');
+                    self.send_header('Content-Type', 'image/jpeg');
+                    self.send_header('Content-Length', len(frame));
+                    self.end_headers();
+                    self.wfile.write(frame);
+                    self.wfile.write(b'\r\n');
             except Exception as e:
                 logging.warning(
                     'Removed streaming client %s: %s',
-                    self.client_address, str(e))
+                    self.client_address, str(e));
         elif self.path.startswith('/camera'):
             queryString = urlparse(self.path).query;
 
@@ -67,18 +68,18 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             self.end_headers();
             self.wfile.write(response);
         else:
-            self.send_error(404)
-            self.end_headers()
+            self.send_error(404);
+            self.end_headers();
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
-    allow_reuse_address = True
-    daemon_threads = True
+    allow_reuse_address = True;
+    daemon_threads = True;
 
 camera = Camera();
 
 try:
-    address = ('', PORT)
-    server = StreamingServer(address, StreamingHandler)
-    server.serve_forever()
+    address = ('', PORT);
+    server = StreamingServer(address, StreamingHandler);
+    server.serve_forever();
 finally:
     camera.close();
