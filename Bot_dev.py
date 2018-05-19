@@ -8,7 +8,7 @@ class Bot:
         self.direction = 0;
 
     def processCommand(self, command):
-        speed, direction = struct.unpack('bb', command);
+        speed, direction = struct.unpack('>Hh', command);
 
         print(speed, direction);
 
@@ -30,6 +30,7 @@ class Bot:
     def updateDirection(self, direction):
         self.direction = direction;
 
+        '''
         # Turning left
         if direction < 0:
             self.speedRight = 1;
@@ -44,6 +45,7 @@ class Bot:
 
         # Going straight
         else: self.forward();
+        '''
 
     def leftMotorForward(self, speed = None):
         if not speed: speed = self.speed;

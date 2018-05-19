@@ -6,7 +6,7 @@ bot = Bot();
 
 class TCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        self.data = self.request.recv(2);
+        self.data = self.request.recv(4);
         bot.processCommand(self.data);
 
 if __name__ == '__main__':

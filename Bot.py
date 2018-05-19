@@ -24,7 +24,7 @@ class Bot:
         self.direction = 0;
 
     def processCommand(self, command):
-        speed, direction = struct.unpack('bb', command);
+        speed, direction = struct.unpack('>Hh', command);
 
         print(speed, direction);
 
