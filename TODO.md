@@ -2,6 +2,8 @@ Architecture for Bot.py. Update state and call methods based on that, due to com
 Stop robot when connected client disconnects (intentionally or not)
 Calibration
 Battery pack
+Move to UDP bot commands
+Investigate packet length/efficiency
 Camera quality?
 
 More Camera features
