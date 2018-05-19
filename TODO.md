@@ -5,6 +5,7 @@ Battery pack
 Move to UDP bot commands
 Investigate packet length/efficiency
 Camera quality?
+Pi OS
 
 More Camera features
     * color_effects

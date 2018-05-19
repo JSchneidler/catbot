@@ -28,9 +28,11 @@ def buildQueryObject(queryString):
     return queryObject;
 
 class StreamingHandler(server.SimpleHTTPRequestHandler):
+    '''
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*');
         server.SimpleHTTPRequestHandler.end_headers(self);
+    '''
 
     def do_GET(self):
         if self.path == '/stream':

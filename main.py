@@ -1,18 +1,29 @@
 import socketserver
-from Bot_dev import Bot
-#from Bot import Bot
+import sys
+#from Bot_dev import Bot
+from Bot import Bot
 
 bot = Bot();
 
 class TCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        self.data = self.request.recv(4);
+        self.data = self.request.recv(1024);
         bot.processCommand(self.data);
 
+class Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True;
+    allow_reuse_address = True;
+
+    def __init__(self, server_address, RequestHandlerClass):
+        socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass);
+
 if __name__ == '__main__':
-    HOST = 'localhost';
+    HOST = '10.0.0.10';
     PORT = 1103;
 
-    server = socketserver.TCPServer((HOST, PORT), TCPHandler);
+    server = Server((HOST, PORT), TCPHandler);
 
-    server.serve_forever();
+    try:
+        server.serve_forever();
+    except KeyboardInterrupt:
+        sys.exit(0);

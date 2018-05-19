@@ -9,6 +9,17 @@ RIGHT_MOTOR_ENABLE_PIN = 18;
 RIGHT_MOTOR_IN1_PIN = 23;
 RIGHT_MOTOR_IN2_PIN = 24;
 
+DIRECTIONS = {
+    '0': [1, 1],
+    '45': [1, 0.5],
+    '90': [1, -1],
+    '135': [-1, -0.5],
+    '180': [-1, -1],
+    '-135': [-0.5, -1],
+    '-90': [-1, 1],
+    '-45': [0.5, 1]
+};
+
 class Bot:
     def __init__(self):
         self.leftMotorEnable = PWMOutputDevice(LEFT_MOTOR_ENABLE_PIN);
@@ -19,8 +30,8 @@ class Bot:
         self.rightMotorDirection2 = DigitalOutputDevice(RIGHT_MOTOR_IN2_PIN);
 
         self.speed = 0;
-        self.speedLeft = 1;
-        self.speedRight = 1;
+        self.speedLeft = 0;
+        self.speedRight = 0;
         self.direction = 0;
 
     def processCommand(self, command):
@@ -28,72 +39,39 @@ class Bot:
 
         print(speed, direction);
 
-        if speed != self.speed:
-            self.updateSpeed(speed);
+        self.updateBot(speed, direction);
 
-        if direction != self.direction:
-            self.updateDirection(direction);
-
-    def updateSpeed(self, speed):
-        self.speed = abs(speed)/100;
-
-        if speed == 0: self.stop();
-        elif speed < 0: self.reverse();
-        else: self.forward();
-
-    def updateDirection(self, direction):
+    def updateBot(self, speed, direction):
+        self.speed = speed;
         self.direction = direction;
 
-        # Turning left
-        if direction < 0:
-            self.speedRight = 1;
-            self.speedLeft = abs(direction) / 90;
-            self.turnLeft();
+        if speed == 0: self.stop();
+        else:
+            self.speedLeft = DIRECTIONS[str(direction)][0] * (self.speed/100);
+            self.speedRight = DIRECTIONS[str(direction)][1] * (self.speed/100);
 
-        # Turning right
-        elif direction > 0:
-            self.speedLeft = 1;
-            self.speedRight = abs(direction) / 90;
-            self.turnRight();
+            self.setLeftMotorSpeed(self.speedLeft);
+            self.setRightMotorSpeed(self.speedRight);
 
-        # Going straight
-        else: self.forward();
-
-    def leftMotorForward(self, speed = None):
-        if not speed: speed = self.speed;
+    def setLeftMotorSpeed(self, speed):
         print('leftForwardSpeed' + str(speed));
-        self.leftMotorEnable.value = speed;
-        self.leftMotorDirection1.on();
-        self.leftMotorDirection2.off();
+        self.leftMotorEnable.value = abs(speed);
+        if speed > 0:
+            self.leftMotorDirection1.on();
+            self.leftMotorDirection2.off();
+        else:
+            self.leftMotorDirection1.off();
+            self.leftMotorDirection2.on();
 
-    def rightMotorForward(self, speed = None):
-        if not speed: speed = self.speed;
+    def setRightMotorSpeed(self, speed):
         print('rightForwardSpeed' + str(speed));
-        self.rightMotorEnable.value = speed;
-        self.rightMotorDirection1.on();
-        self.rightMotorDirection2.off();
-
-    def forward(self):
-        self.leftMotorForward();
-        self.rightMotorForward();
-
-    def leftMotorReverse(self, speed = None):
-        if not speed: speed = self.speed;
-        print('leftReverseSpeed' + str(speed));
-        self.leftMotorEnable.value = speed;
-        self.leftMotorDirection1.off();
-        self.leftMotorDirection2.on();
-
-    def rightMotorReverse(self, speed = None):
-        if not speed: speed = self.speed;
-        print('rightReverseSpeed' + str(speed));
-        self.rightMotorEnable.value = speed;
-        self.rightMotorDirection1.off();
-        self.rightMotorDirection2.on();
-
-    def reverse(self):
-        self.leftMotorReverse();
-        self.rightMotorReverse();
+        self.rightMotorEnable.value = abs(speed);
+        if speed > 0:
+            self.rightMotorDirection1.on();
+            self.rightMotorDirection2.off();
+        else:
+            self.rightMotorDirection1.off();
+            self.rightMotorDirection2.on();
 
     def leftMotorStop(self):
         self.leftMotorEnable.off();
@@ -104,11 +82,3 @@ class Bot:
     def stop(self):
         self.leftMotorStop();
         self.rightMotorStop();
-
-    def turnLeft(self):
-        self.leftMotorReverse(self.speedLeft * self.speed);
-        self.rightMotorForward(self.speedRight * self.speed);
-
-    def turnRight(self):
-        self.leftMotorForward(self.speedLeft * self.speed);
-        self.rightMotorReverse(self.speedRight * self.speed);
